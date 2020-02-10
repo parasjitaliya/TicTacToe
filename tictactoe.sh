@@ -5,8 +5,8 @@ player=1
 rows=3
 columns=3
 check=$((RANDOM%2))
-movecount=1
-totalcount=9
+movecount=0
+totalcount=8
 resetBoard()
 {
 	for ((i=0;i<$rows;i++))
@@ -44,6 +44,7 @@ function checkBlankCell(){
 	if [[ ${Arr[$row,$column]} == "-" ]]
 	then
 		Arr[$row,$column]=$player
+		Arr[$row,$column]=$computer
 		((movecount++))
 		displayBoard
 	else
@@ -60,7 +61,10 @@ function checkHorizontal
 			if [[ $Horizontal == "$player$player$player" ]]
 			then
   				echo "You Won Horizontically!!"
-			exit
+			elif [[ $Horizontal == "$computer$computer$computer" ]]
+			then
+				echo "Computer Won Horizontically!!"
+				exit
 			fi
 		done
 	done
@@ -76,7 +80,10 @@ function checkVertical
 			if [[ $Vertical == "$player$player$player" ]]
 			then
 				echo "You Won Vertically!!"
-      			exit
+      			elif [[ $Vertical == "$computer$computer$computer" ]]
+			then
+				echo "Computer Won vertically!!"
+				exit
    			fi
 		done
 	done
@@ -87,31 +94,89 @@ function diagonally
 	do
 		for ((j=0;j<column;j++))
 		do
-			if [[ ${Arr[$i,$j]}${Arr[$((i+1)),$((j+1))]}${Arr[$((i+2)),$((j+2))]} == "$player$player$player" ]] || [[ ${Arr[$i,$((j+2))]}${Arr[$((i+1)),
-														$((j+1))]}${Arr[$((i+2)),$j]} == "$player$player$player" ]]
+			firstDiagonal=${Arr[$i,$j]}${Arr[$((i+1)),$((j+1))]}${Arr[$((i+2)),$((j+2))]}  
+			secondDiagonal=${Arr[$i,$(($j+2))]}${Arr[$(($i+1)),$(($j+1))]}${Arr[$(($i+2)),$j]} 
+			if [[ $firstDiagonal == "$player$player$player" ]] || [[ $secondDiagonal == "$player$player$player" ]]
    			then
 				echo "You Won Diagonally!!"
+				exit
+			elif [[ $firstDiagonal == "$computer$computer$computer" ]] || [[ $secondDiagonal == "$computer$computer$computer" ]]
+			then
+				echo "Computer Won Diagonally!!"
 				exit
 			fi
 		done
 	done
 
 }
+function tieGame(){
+if [[ $movecount -eq $TOTALCOUNT ]]
+then  
+      echo "Match Tie!!"
+      exit
+fi
+}
+function userTurn()
+{
+	read -p "Enter row" row
+	read -p "Enter column" column
+		if [[ ${Arr[$row,$column]} == "-" ]]
+		then
+			Arr[$row,$column]=$player
+			((movecount++))
+			echo $movecount
+			displayBoard
+			checkHorizontal
+		        checkVertical
+        		diagonally
+			computerTurn
+		else
+			echo "Position Occupied Or Invalid Position For User!!"
+			tieGame
+			userTurn
+		fi
+}
+
+function computerTurn()
+{
+	row=$((RANDOM%3))
+	echo $row
+	column=$((RANDOM%3))
+	echo $column
+		if [[ ${Arr[$row,$column]} == "-" ]]
+		then
+			Arr[$row,$column]=$computer
+			((movecount++))
+			displayBoard
+			checkHorizontal
+		        checkVertical
+        		diagonally
+			userTurn
+		else
+			echo "Position Occupied Or Invalid Position For Computer!!"	
+			tieGame
+			computerTurn
+			break
+		fi
+}
 
 function Symbol(){
-	if [ $player == 1 ]; 
+	if [ $check == 1 ]; 
 	then 
-		player=O
+		player="X"
+		computer="O"
   	else 
-		player=X; 
+		player="0"
+		computer="X" 
 	fi
 	echo player $player assigned
+	echo computer $computer assigned
 }
 Symbol
 resetBoard
 while [[ $movecount -lt $totalcount ]]
 do
-	checkBlankCell
+	computerTurn
 	checkHorizontal
         checkVertical
         diagonally
