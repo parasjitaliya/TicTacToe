@@ -7,6 +7,8 @@ columns=3
 check=$((RANDOM%2))
 movecount=0
 totalcount=8
+flage=0
+ch=0
 resetBoard()
 {
 	for ((i=0;i<$rows;i++))
@@ -51,7 +53,7 @@ function checkBlankCell(){
 		echo "Position Occupied Or Invalid Position"
 	fi
 }
-function checkHorizontal
+function checkWinPosition
 {
 	for ((i=0;i<rows;i++))
 	do
@@ -66,15 +68,6 @@ function checkHorizontal
 				echo "Computer Won Horizontically!!"
 				exit
 			fi
-		done
-	done
-}
-function checkVertical
-{
-	for ((i=0;i<rows;i++))
-        do
-                for ((j=0;j<column;j++))
-                do
 
 			Vertical=${Arr[$j,$i]}${Arr[$((j+1)),$i]}${Arr[$((j+2)),$i]}
 			if [[ $Vertical == "$player$player$player" ]]
@@ -85,15 +78,7 @@ function checkVertical
 				echo "Computer Won vertically!!"
 				exit
    			fi
-		done
-	done
-}
-function diagonally
-{
-	for ((i=0;i<rows;i++))
-	do
-		for ((j=0;j<column;j++))
-		do
+
 			firstDiagonal=${Arr[$i,$j]}${Arr[$((i+1)),$((j+1))]}${Arr[$((i+2)),$((j+2))]}  
 			secondDiagonal=${Arr[$i,$(($j+2))]}${Arr[$(($i+1)),$(($j+1))]}${Arr[$(($i+2)),$j]} 
 			if [[ $firstDiagonal == "$player$player$player" ]] || [[ $secondDiagonal == "$player$player$player" ]]
@@ -107,10 +92,10 @@ function diagonally
 			fi
 		done
 	done
-
+	flage=1
 }
 function tieGame(){
-if [[ $movecount -eq $TOTALCOUNT ]]
+if [[ $movecount -eq $totalcount ]]
 then  
       echo "Match Tie!!"
       exit
@@ -126,15 +111,55 @@ function userTurn()
 			((movecount++))
 			echo $movecount
 			displayBoard
-			checkHorizontal
-		        checkVertical
-        		diagonally
-			computerTurn
+			checkWinPosition
+			if [ $movecount -ge 4 ]
+			then
+				if [ flage = 1 ]
+				then 
+					read -p "the move is not wining move you want to go with same then press (1) change your move then press (2)" ch
+				        if [ $ch = 1]
+        				then
+                				computerTutn
+        				else
+						Arr[$row,$column]="-"
+			                        ((movecount--))
+
+						read -p "Enter row" row
+						read -p "Enter column" column
+                				if [[ ${Arr[$row,$column]} == "-" ]]
+                				then
+                        				Arr[$row,$column]=$player
+                        				((movecount++))
+                        				echo $movecount
+                       					displayBoard
+                        				checkWinPosition
+				                        if [ $movecount -ge 4 ]
+                        				then
+                                				if [ flage = 1 ]
+                                				then 
+									 Arr[$row,$column]="-"
+                                        				userTurn
+                                				fi
+                        				else
+                                				computerTurn
+                        				fi
+                				else
+                        				echo "Position Occupied Or Invalid Position For User!!"
+                        				tieGame
+                       					userTurn
+               				 	fi
+					fi
+				else
+					computerTurn
+				fi
+			else
+				computerTurn
+			fi
 		else
 			echo "Position Occupied Or Invalid Position For User!!"
 			tieGame
 			userTurn
-		fi
+	fi
 }
 
 function computerTurn()
@@ -148,15 +173,12 @@ function computerTurn()
 			Arr[$row,$column]=$computer
 			((movecount++))
 			displayBoard
-			checkHorizontal
-		        checkVertical
-        		diagonally
+			checkWinPosition
 			userTurn
 		else
 			echo "Position Occupied Or Invalid Position For Computer!!"	
 			tieGame
 			computerTurn
-			break
 		fi
 }
 
