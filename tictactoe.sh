@@ -23,6 +23,19 @@ function toss(){
 		echo PLAYER $player has won Toss
 	fi
 }
+function displayBoard(){
+	echo "-------------"
+	for (( i=0; i<$rows; i++ ))
+	do
+		for (( j=0; j<$columns; j++ ))
+		do
+			echo -n "| ${board[$i,$j]} "
+		done
+			echo "|"
+			echo "-------------"
+	done
+}
+
 player=$((player%2+1))
 if [ $player == 1 ]; 
 then 
@@ -32,3 +45,4 @@ then
 fi
 resetBoard
 toss
+displayBoard
