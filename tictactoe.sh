@@ -3,6 +3,7 @@ echo "-----------Welcome Tic Tac Toe------------"
 player=1
 rows=3
 columns=3
+check=$((RANDOM%2))
 resetBoard()
 {
 	for ((i=0;i<$rows;i++))
@@ -14,6 +15,14 @@ resetBoard()
 	done
 	echo "--Game started--"
 }
+function toss(){
+	if [ $check -eq $player ]
+	then
+		echo PLAYER $player has won Toss
+	else
+		echo PLAYER $player has won Toss
+	fi
+}
 player=$((player%2+1))
 if [ $player == 1 ]; 
 then 
@@ -21,5 +30,5 @@ then
   else 
 	sym=X; 
 fi
-echo $sym
 resetBoard
+toss
